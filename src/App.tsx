@@ -1,30 +1,74 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
+import { makeLetters, preloadImages } from './helpers';
+import { dimensions, mapLettersToImages } from './consts';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [imagesKeys, setImagesKeys] = useState({});
+
+  const [isImgLoaded, setImgLoaded] = useState(false);
+  const [coords, setCoords] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const drawImage = useCallback(
+    (image: CanvasImageSource, x: number, y: number) => {
+      ctx?.drawImage(image, x, y, dimensions.width, dimensions.height);
+    },
+    [ctx],
+  );
+
+  const clearRect = useCallback(
+    (x: number, y: number) => {
+      ctx?.clearRect(x, y, dimensions.width, dimensions.height);
+    },
+    [ctx],
+  );
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    e.preventDefault();
+    drawLetters(e);
+  };
+
+  const drawLetters = useCallback(
+    (e: KeyboardEvent) => {
+      e.preventDefault();
+      makeLetters(imagesKeys, e.key, coords.x, coords.y, setCoords, drawImage, clearRect, e.code);
+    },
+    [coords, clearRect, drawImage, imagesKeys],
+  );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext('2d');
+      if (context) setCtx(context);
+    }
+  }, [canvasRef]);
+
+  useEffect(() => {
+    if (!isImgLoaded) {
+      console.log('loading images');
+      preloadImages(mapLettersToImages, setImagesKeys).then(() => setImgLoaded(true));
+    }
+  }, [isImgLoaded, imagesKeys]);
+
+  useEffect(() => {
+    console.log('adding listener');
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      console.log('removing listener');
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [coords, imagesKeys]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <main className="main">
+      <canvas ref={canvasRef} className="canvas" width="1200" height="700"></canvas>
+    </main>
   );
 }
 
