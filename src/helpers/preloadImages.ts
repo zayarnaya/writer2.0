@@ -1,6 +1,7 @@
 import { dimensions } from '../consts';
+import { ImageSources } from '../types';
 
-export const preloadImages = async (images, callback) => {
+export const preloadImages = async (images: Record<string, string>, callback: (object: ImageSources) => void) => {
   const target = {};
   const sources = Object.values(images);
   const keys = Object.keys(images);
@@ -16,8 +17,8 @@ export const preloadImages = async (images, callback) => {
         }),
     ),
   ).catch((error) => {
+    // eslint-disable-next-line no-console
     console.log(error.message); // сделать единый блок демонстрации ошибок?
   });
-  console.log(target);
   callback(target);
 };

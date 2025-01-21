@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 import { makeLetters, preloadImages } from './helpers';
 import { dimensions, mapLettersToImages } from './consts';
+import { Coords, ImageSources } from './types';
 
 function App() {
-  const [imagesKeys, setImagesKeys] = useState({});
+  const [imagesKeys, setImagesKeys] = useState<ImageSources>({});
 
   const [isImgLoaded, setImgLoaded] = useState(false);
-  const [coords, setCoords] = useState({
+  const [coords, setCoords] = useState<Coords>({
     x: 0,
     y: 0,
   });
@@ -36,7 +37,7 @@ function App() {
   const drawLetters = useCallback(
     (e: KeyboardEvent) => {
       e.preventDefault();
-      makeLetters(imagesKeys, e.key, coords.x, coords.y, setCoords, drawImage, clearRect, e.code);
+      makeLetters(imagesKeys, e.key, coords.x, coords.y, setCoords, drawImage, clearRect);
     },
     [coords, clearRect, drawImage, imagesKeys],
   );
@@ -51,16 +52,13 @@ function App() {
 
   useEffect(() => {
     if (!isImgLoaded) {
-      console.log('loading images');
       preloadImages(mapLettersToImages, setImagesKeys).then(() => setImgLoaded(true));
     }
   }, [isImgLoaded, imagesKeys]);
 
   useEffect(() => {
-    console.log('adding listener');
     document.addEventListener('keydown', handleKeyDown);
     return () => {
-      console.log('removing listener');
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [coords, imagesKeys]);

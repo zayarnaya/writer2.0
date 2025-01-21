@@ -1,11 +1,12 @@
 import { dimensions } from '../consts';
+import { Coords, ImageSources } from '../types';
 
 export const makeLetters = (
-  imagesKeys: Record<string, HTMLImageElement>,
+  imagesKeys: ImageSources,
   key: string,
   x: number,
   y: number,
-  setCoords: ({ x, y }: { x: number; y: number }) => void,
+  setCoords: (coords: Coords) => void,
   drawImage: (image: CanvasImageSource, x: number, y: number) => void,
   clearRect: (x: number, y: number) => void,
 ) => {
