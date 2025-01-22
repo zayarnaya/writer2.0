@@ -1,2 +1,2 @@
 export { preloadImages } from './preloadImages';
-export { makeLetters } from './makeLetters';
+export { makeLetter } from './makeLetters';
