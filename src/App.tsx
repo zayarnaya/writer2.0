@@ -113,6 +113,12 @@ function App() {
   }, [canvasRef]);
 
   useEffect(() => {
+    if (letters.length) {
+      drawLetters(letters, 0, 0);
+    }
+  }, [canvasDimensions.width]);
+
+  useEffect(() => {
     if (!isImgLoaded) {
       preloadImages(mapLettersToImages, setImagesKeys).then(() => setImgLoaded(true));
     }
