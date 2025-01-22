@@ -5,6 +5,10 @@ import { dimensions, mapLettersToImages } from './consts';
 import { Coords, ImageSources } from './types';
 
 function App() {
+  const [canvasDimensions, setCanvasDimensions] = useState({
+    width: dimensions.fieldWidth,
+    height: dimensions.fieldHeight,
+  });
   const [imagesKeys, setImagesKeys] = useState<ImageSources>({});
   const [letters, setLetters] = useState<string[]>([]);
   const [isImgLoaded, setImgLoaded] = useState(false);
@@ -37,28 +41,72 @@ function App() {
 
   const drawLetter = useCallback(
     (key: string) => {
-      const [newX, newY] = makeLetter(imagesKeys, key, coords.x, coords.y, drawImage, clearRect);
+      const [newX, newY] = makeLetter(
+        imagesKeys,
+        key,
+        coords.x,
+        coords.y,
+        drawImage,
+        clearRect,
+        canvasDimensions.width,
+      );
       setCoords({ x: newX, y: newY });
     },
-    [coords, clearRect, drawImage, imagesKeys],
+    [coords, clearRect, drawImage, imagesKeys, canvasDimensions.width],
   );
 
   const drawLetters = useCallback(
     (array: string[], x: number, y: number) => {
       const newCoords = { x, y };
       array.forEach((letter) => {
-        const [newX, newY] = makeLetter(imagesKeys, letter, newCoords.x, newCoords.y, drawImage, clearRect);
+        const [newX, newY] = makeLetter(
+          imagesKeys,
+          letter,
+          newCoords.x,
+          newCoords.y,
+          drawImage,
+          clearRect,
+          canvasDimensions.width,
+        );
         newCoords.x = newX;
         newCoords.y = newY;
       });
       setCoords(newCoords);
     },
-    [imagesKeys, drawImage, clearRect],
+    [imagesKeys, drawImage, clearRect, canvasDimensions.width],
   );
+
+  const handleSave = useCallback(() => {
+    localStorage.setItem('writer', JSON.stringify(letters));
+  }, [letters]);
+
+  const handleLoad = useCallback(() => {
+    const stored = localStorage.getItem('writer');
+    if (stored) {
+      ctx?.clearRect(0, 0, dimensions.fieldWidth, dimensions.fieldHeight);
+      const newLetters = JSON.parse(stored) as string[];
+      setLetters(newLetters);
+      drawLetters(newLetters, 0, 0);
+    }
+  }, [ctx, drawLetters]);
+
+  const handleDelete = useCallback(() => localStorage.removeItem('writer'), []);
+
+  const handleClear = useCallback(() => {
+    ctx?.clearRect(0, 0, 1200, 700);
+    setCoords({ x: 0, y: 0 });
+    setLetters([]);
+  }, [ctx]);
+
+  const resetDimensions = () => {
+    const { innerWidth, innerHeight } = window;
+    setCanvasDimensions({ height: innerHeight, width: innerWidth });
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
+      resetDimensions();
       const context = canvas.getContext('2d');
       if (context) setCtx(context);
     }
@@ -78,39 +126,31 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coords, imagesKeys]);
 
+  useEffect(() => {
+    window.addEventListener('resize', resetDimensions);
+    return () => window.removeEventListener('resize', resetDimensions);
+  }, []);
+
   return (
     <main className="main">
-      <button id="save" onClick={() => localStorage.setItem('writer', JSON.stringify(letters))}>
+      <button id="save" onClick={handleSave}>
         SAVE
       </button>
-      <button
-        id="load"
-        onClick={() => {
-          const stored = localStorage.getItem('writer');
-          if (stored) {
-            ctx?.clearRect(0, 0, 1200, 700);
-            const newLetters = JSON.parse(stored) as string[];
-            setLetters(newLetters);
-            drawLetters(newLetters, 0, 0);
-          }
-        }}
-      >
+      <button id="load" onClick={handleLoad}>
         LOAD
       </button>
-      <button id="deleteSaved" onClick={() => localStorage.removeItem('writer')}>
+      <button id="deleteSaved" onClick={handleDelete}>
         DELETE SAVED
       </button>
-      <button
-        id="clearField"
-        onClick={() => {
-          ctx?.clearRect(0, 0, 1200, 700);
-          setCoords({ x: 0, y: 0 });
-          setLetters([]);
-        }}
-      >
+      <button id="clearField" onClick={handleClear}>
         CLEAR FIELD
       </button>
-      <canvas ref={canvasRef} className="canvas" width="1200" height="700"></canvas>
+      <canvas
+        ref={canvasRef}
+        className="canvas"
+        width={canvasDimensions.width}
+        height={canvasDimensions.height}
+      ></canvas>
     </main>
   );
 }

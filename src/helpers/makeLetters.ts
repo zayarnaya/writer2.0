@@ -8,10 +8,12 @@ export const makeLetter = (
   y: number,
   drawImage: (image: CanvasImageSource, x: number, y: number) => void,
   clearRect: (x: number, y: number) => void,
+  maxWidth: number,
 ) => {
   const coords = { x, y };
   const { height, width } = dimensions;
-  if (coords.x > 1200) {
+  const limitWidth = maxWidth - (maxWidth % width);
+  if (coords.x >= limitWidth) {
     coords.x = 0;
     coords.y += height;
   }
@@ -29,7 +31,7 @@ export const makeLetter = (
     case 'Backspace': {
       if (coords.y > 0 && coords.x == 0) {
         coords.y -= height;
-        coords.x = 1200;
+        coords.x = limitWidth;
       }
       clearRect(coords.x - width, coords.y);
       coords.x -= width;
