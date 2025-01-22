@@ -10,7 +10,7 @@ export const preloadImages = async (images: Record<string, string>, callback: (o
       (source, index) =>
         new Promise((resolve, reject) => {
           const img = new Image(dimensions.width, dimensions.height);
-          img.src = source;
+          img.src = (process.env.NODE_ENV === 'production' ? '/writer2.0' : '') + source;
           Object.assign(target, { [keys[index]]: img });
           img.onload = () => resolve(img);
           img.onerror = (event) => reject(event);

@@ -105,6 +105,7 @@ function App() {
         onClick={() => {
           ctx?.clearRect(0, 0, 1200, 700);
           setCoords({ x: 0, y: 0 });
+          setLetters([]);
         }}
       >
         CLEAR FIELD
