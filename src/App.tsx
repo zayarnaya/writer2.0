@@ -3,6 +3,7 @@ import './App.css';
 import { makeLetter, preloadImages } from './helpers';
 import { dimensions, mapLettersToImages } from './consts';
 import { Coords, ImageSources } from './types';
+import { Controls } from './views';
 
 function App() {
   const [canvasDimensions, setCanvasDimensions] = useState({
@@ -116,6 +117,7 @@ function App() {
     if (letters.length) {
       drawLetters(letters, 0, 0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasDimensions.width]);
 
   useEffect(() => {
@@ -139,18 +141,7 @@ function App() {
 
   return (
     <main className="main">
-      <button id="save" onClick={handleSave}>
-        SAVE
-      </button>
-      <button id="load" onClick={handleLoad}>
-        LOAD
-      </button>
-      <button id="deleteSaved" onClick={handleDelete}>
-        DELETE SAVED
-      </button>
-      <button id="clearField" onClick={handleClear}>
-        CLEAR FIELD
-      </button>
+      <Controls onSave={handleSave} onLoad={handleLoad} onDelete={handleDelete} onClear={handleClear} />
       <canvas
         ref={canvasRef}
         className="canvas"

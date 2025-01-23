@@ -2,7 +2,6 @@
   width: 100vw;
   height: 100vh;
   overflow-y: auto;
-  padding-top: 50px;
   background-color: #eddedb;
 }
 
@@ -17,7 +16,7 @@
   }
 }
 
-#save,
+/* #save,
 #load,
 #deleteSaved,
 #clearField {
@@ -36,4 +35,4 @@
 
 #clearField {
   left: 400px;
-}
+} */
